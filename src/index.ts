@@ -43,15 +43,13 @@ async function main(): Promise<void> {
 				const bots = proxies.map((proxy, i) => {
 					return new optimAi(firstAccount, proxy, i + 1, proxies.length)
 				})
-				// 添加当前主机 IP
-				bots.push(new optimAi(firstAccount, null, 1, 1))
 
+				bots.push(new optimAi(firstAccount, null, 0, 0))
 				bots.forEach(async (bot, i) => {
 					try {
 						await bot.processAccount()
-						logMessage(1, bots.length, `Successfully processed with proxy ${i + 1}`, 'info')
 					} catch (error: any) {
-						logMessage(1, bots.length, `Failed with proxy ${i + 1}: ${error?.message || error}`, 'error')
+						logMessage(1, proxies.length, `Failed with proxy ${i + 1}: ${error?.message || error}`, 'error')
 					}
 				})
 			}
