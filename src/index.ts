@@ -49,9 +49,9 @@ async function main(): Promise<void> {
 				bots.forEach(async (bot, i) => {
 					try {
 						await bot.processAccount()
-						logMessage(1, proxies.length, `Successfully processed with proxy ${i + 1}`, 'info')
+						logMessage(1, bots.length, `Successfully processed with proxy ${i + 1}`, 'info')
 					} catch (error: any) {
-						logMessage(1, proxies.length, `Failed with proxy ${i + 1}: ${error?.message || error}`, 'error')
+						logMessage(1, bots.length, `Failed with proxy ${i + 1}: ${error?.message || error}`, 'error')
 					}
 				})
 			}
