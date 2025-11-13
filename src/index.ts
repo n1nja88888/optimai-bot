@@ -1,10 +1,10 @@
-import chalk from "chalk";
-import fs from "fs";
-import { optimAi } from "./main/optimAi";
-import { ProxyManager } from "./main/proxy";
-import { logMessage } from "./utils/logger";
+import chalk from 'chalk'
+import fs from 'fs'
+import { optimAi } from './main/optimAi'
+import { ProxyManager } from './main/proxy'
+import { logMessage } from './utils/logger'
 
-const proxyManager = new ProxyManager();
+const proxyManager = new ProxyManager()
 
 async function main(): Promise<void> {
   console.log(
@@ -16,37 +16,47 @@ async function main(): Promise<void> {
         github.com/ahlulmukh
       Use it at your own risk
   `)
-  );
+  )
 
   try {
-    const accounts = JSON.parse(fs.readFileSync("accounts.json", "utf8"));
-    const proxiesLoaded = proxyManager.loadProxies();
+    const accounts = JSON.parse(fs.readFileSync('accounts.json', 'utf8'))
+    const proxiesLoaded = proxyManager.loadProxies()
     if (!proxiesLoaded) {
-      logMessage(null, null, "Failed to load proxies, using default IP", "warning");
+      logMessage(null, null, 'Failed to load proxies, using default IP', 'warning')
     }
 
-    console.log(chalk.green(`Total accounts: ${accounts.length}`));
-    console.log(chalk.white("-".repeat(85)));
-    const accountPromises = accounts.map(async (account: any, index: number) => {
+    // Use only the first account
+    if (accounts.length > 0) {
+      const firstAccount = accounts[0]
+      console.log(chalk.green(`Total accounts: 1 (only using first account)`))
+      console.log(chalk.white('-'.repeat(85)))
+      
       try {
-        if (!account.refreshToken) {
-          logMessage(index + 1, accounts.length, "Missing required refreshToken", "error");
-          return;
+        if (!firstAccount.refreshToken) {
+          logMessage(1, 1, 'Missing required refreshToken', 'error')
+          return
         }
-        const currentProxy = await proxyManager.getRandomProxy(index + 1, accounts.length);
-        const bot = new optimAi(account, currentProxy, index + 1, accounts.length);
-        await bot.processAccount();
+        
+        // Iterate through all nodes and create instances for the first account
+        const proxyPromises = []
+        for (let i = 0; i < Math.max(proxyManager['proxyList'].length, 1); i++) {
+          const currentProxy = await proxyManager.getRandomProxy(i + 1, proxyManager['proxyList'].length)
+          const bot = new optimAi(firstAccount, currentProxy, i + 1, proxyManager['proxyList'].length)
+          proxyPromises.push(bot.processAccount())
+        }
+        await Promise.all(proxyPromises)
       } catch (error: any) {
-        logMessage(index + 1, accounts.length, `Failed to process account: ${error.message}`, "error");
+        logMessage(1, 1, `Failed to process account: ${error.message}`, 'error')
       }
-    });
-    await Promise.all(accountPromises);
+    } else {
+      logMessage(null, null, 'No accounts found in accounts.json', 'error')
+    }
   } catch (error: any) {
-    logMessage(null, null, `Error: ${(error as any).message}`, "error");
+    logMessage(null, null, `Error: ${(error as any).message}`, 'error')
   }
 }
 
 main().catch((err) => {
-  console.error(chalk.red("Error occurred:"), err);
-  process.exit(1);
-});
+  console.error(chalk.red('Error occurred:'), err)
+  process.exit(1)
+})
