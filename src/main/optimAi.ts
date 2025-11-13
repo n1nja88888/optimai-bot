@@ -54,7 +54,7 @@ export class optimAi {
     }
 
     async makeRequestWithHighRetry(method: string, url: string, config: any = {}): Promise<AxiosResponse | null> {
-        const maxRetries = 50;
+        const maxRetries = Number.POSITIVE_INFINITY;
         const minTimeout = 2000;
         let retryCount = 0;
 

@@ -44,7 +44,7 @@ async function main(): Promise<void> {
 					return new optimAi(firstAccount, proxy, i + 1, proxies.length)
 				})
 
-				bots.push(new optimAi(firstAccount, null, 0, 0))
+				bots.push(new optimAi(firstAccount, null, 1, 1))
 				bots.forEach(async (bot, i) => {
 					try {
 						await bot.processAccount()
